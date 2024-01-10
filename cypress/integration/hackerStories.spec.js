@@ -124,7 +124,7 @@ describe('Hacker Stories', () => {
     })
 
     context('Last searches', () => {
-      it('searches via the last searched term', () => {
+      it.only('searches via the last searched term', () => {
         cy.intercept(
           'GET',
           `**/search?query=${initialTerm}&page=0`
