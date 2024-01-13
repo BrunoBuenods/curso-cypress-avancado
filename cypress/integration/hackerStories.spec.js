@@ -25,7 +25,7 @@ describe('Hacker Stories', () => {
     // and so, how can I assert on the data?
     // This is why this test is being skipped.
     // TODO: Find a way to test it out.
-    it.skip('shows the right data for all rendered stories', () => {})
+    it.skip('shows the right data for all rendered stories', () => { })
 
     it('shows 20 stories, then the next 20 after clicking "More"', () => {
       cy.intercept({
@@ -60,113 +60,147 @@ describe('Hacker Stories', () => {
     // This is why these tests are being skipped.
     // TODO: Find a way to test them out.
     context.skip('Order by', () => {
-      it('orders by title', () => {})
+      it('orders by title', () => { })
 
-      it('orders by author', () => {})
+      it('orders by author', () => { })
 
-      it('orders by comments', () => {})
+      it('orders by comments', () => { })
 
-      it('orders by points', () => {})
+      it('orders by points', () => { })
     })
 
-    // Hrm, how would I simulate such errors?
-    // Since I still don't know, the tests are being skipped.
-    // TODO: Find a way to test them out.
-    context.skip('Errors', () => {
-      it('shows "Something went wrong ..." in case of a server error', () => {})
+    context('Search', () => {
+      const initialTerm = 'React'
+      const newTerm = 'Cypress'
 
-      it('shows "Something went wrong ..." in case of a network error', () => {})
-    })
-  })
-
-  context('Search', () => {
-    const initialTerm = 'React'
-    const newTerm = 'Cypress'
-
-    beforeEach(() => {
-      cy.intercept(
-        'GET',
-        `**/search?query=${newTerm}&page=0`
-      ).as('getNewTermStories')
-
-      cy.get('#search')
-        .clear()
-    })
-
-    it('types and hits ENTER', () => {
-      cy.get('#search')
-        .type(`${newTerm}{enter}`)
-
-      cy.wait('@getNewTermStories')
-
-      cy.get('.item').should('have.length', 20)
-      cy.get('.item')
-        .first()
-        .should('contain', newTerm)
-      cy.get(`button:contains(${initialTerm})`)
-        .should('be.visible')
-    })
-
-    it('types and clicks the submit button', () => {
-      cy.get('#search')
-        .type(newTerm)
-      cy.contains('Submit')
-        .click()
-
-      cy.wait('@getNewTermStories')
-
-      cy.get('.item').should('have.length', 20)
-      cy.get('.item')
-        .first()
-        .should('contain', newTerm)
-      cy.get(`button:contains(${initialTerm})`)
-        .should('be.visible')
-    })
-
-    context('Last searches', () => {
-      it('searches via the last searched term', () => {
+      beforeEach(() => {
         cy.intercept(
           'GET',
-          `**/search?query=${initialTerm}&page=0`
-        ).as('getInitialTermStories')
+          `**/search?query=${newTerm}&page=0`
+        ).as('getNewTermStories')
 
+        cy.get('#search')
+          .clear()
+      })
+
+      it('types and hits ENTER', () => {
         cy.get('#search')
           .type(`${newTerm}{enter}`)
 
         cy.wait('@getNewTermStories')
 
+        cy.get('.item').should('have.length', 20)
+        cy.get('.item')
+          .first()
+          .should('contain', newTerm)
         cy.get(`button:contains(${initialTerm})`)
           .should('be.visible')
+      })
+
+      it('types and clicks the submit button', () => {
+        cy.get('#search')
+          .type(newTerm)
+        cy.contains('Submit')
           .click()
 
-        cy.wait('@getInitialTermStories')
+        cy.wait('@getNewTermStories')
 
         cy.get('.item').should('have.length', 20)
         cy.get('.item')
           .first()
-          .should('contain', initialTerm)
-        cy.get(`button:contains(${newTerm})`)
+          .should('contain', newTerm)
+        cy.get(`button:contains(${initialTerm})`)
           .should('be.visible')
       })
 
-      it('shows a max of 5 buttons for the last searched terms', () => {
-        const faker = require('faker')
+      it.only('types and submits the form directly', () => {
+        cy.get('#search')
+          .type(newTerm)
+        cy.get('form').submit()
 
-        cy.intercept(
-          'GET',
-          '**/search**'
-        ).as('getRandomStories')
+        cy.wait('@getNewTermStories')
 
-        Cypress._.times(6, () => {
+        cy.get('.item').should('have.length', 20)
+
+      })
+
+      context('Last searches', () => {
+        it('searches via the last searched term', () => {
+          cy.intercept(
+            'GET',
+            `**/search?query=${initialTerm}&page=0`
+          ).as('getInitialTermStories')
+
           cy.get('#search')
-            .clear()
-            .type(`${faker.random.word()}{enter}`)
-          cy.wait('@getRandomStories')
+            .type(`${newTerm}{enter}`)
+
+          cy.wait('@getNewTermStories')
+
+          cy.get(`button:contains(${initialTerm})`)
+            .should('be.visible')
+            .click()
+
+          cy.wait('@getInitialTermStories')
+
+          cy.get('.item').should('have.length', 20)
+          cy.get('.item')
+            .first()
+            .should('contain', initialTerm)
+          cy.get(`button:contains(${newTerm})`)
+            .should('be.visible')
         })
 
-        cy.get('.last-searches button')
-          .should('have.length', 5)
+        it('shows a max of 5 buttons for the last searched terms', () => {
+          const faker = require('faker')
+
+          cy.intercept(
+            'GET',
+            '**/search**'
+          ).as('getRandomStories')
+
+          Cypress._.times(6, () => {
+            cy.get('#search')
+              .clear()
+              .type(`${faker.random.word()}{enter}`)
+            cy.wait('@getRandomStories')
+          })
+
+          cy.get('.last-searches button')
+            .should('have.length', 5)
+        })
       })
+    })
+  })
+  
+  context.only('Errors', () => {
+    it('shows "Something went wrong ..." in case of a server error', () => {
+      cy.intercept(
+        'GET',
+        '**/search**',
+        { statusCode: 500 }
+
+      ).as('getServerFailure')
+      cy.visit('/')
+      cy.wait('@getServerFailure')
+
+      cy.get('p:contains(Somenthing went wrong ...)')
+        .should('be.visible')
+
+    })
+
+    it('shows "Something went wrong ..." in case of a network error', () => {
+      cy.intercept(
+        'GET',
+        '**/search**',
+        { forceNetworkError: true }
+
+      ).as('getNetworkFailure')
+      cy.visit('/')
+      cy.wait('@getNetworkFailure')
+
+      cy.get('p:contains(Somenthing went wrong ...)')
+        .should('be.visible')
+
     })
   })
 })
