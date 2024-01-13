@@ -171,13 +171,10 @@ describe('Hacker Stories', () => {
       })
     })
   })
-  // Hrm, how would I simulate such errors?
-  // Since I still don't know, the tests are being skipped.
-  // TODO: Find a way to test them out.
+  
   context.only('Errors', () => {
     it('shows "Something went wrong ..." in case of a server error', () => {
       cy.intercept(
-
         'GET',
         '**/search**',
         { statusCode: 500 }
@@ -193,7 +190,6 @@ describe('Hacker Stories', () => {
 
     it('shows "Something went wrong ..." in case of a network error', () => {
       cy.intercept(
-
         'GET',
         '**/search**',
         { forceNetworkError: true }
