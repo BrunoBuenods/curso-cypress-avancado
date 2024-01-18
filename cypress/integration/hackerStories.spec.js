@@ -171,36 +171,36 @@ describe('Hacker Stories', () => {
       })
     })
   })
-  
-  context.only('Errors', () => {
-    it('shows "Something went wrong ..." in case of a server error', () => {
-      cy.intercept(
-        'GET',
-        '**/search**',
-        { statusCode: 500 }
+})
 
-      ).as('getServerFailure')
-      cy.visit('/')
-      cy.wait('@getServerFailure')
+context.only('Errors', () => {
+  it('shows "Something went wrong ..." in case of a server error', () => {
+    cy.intercept(
+      'GET',
+      '**/search**',
+      { statusCode: 500 }
 
-      cy.get('p:contains(Somenthing went wrong ...)')
-        .should('be.visible')
+    ).as('getServerFailure')
+    cy.visit('/')
+    cy.wait('@getServerFailure')
 
-    })
+    cy.get('p:contains(Something went wrong ...)')
+      .should('be.visible')
 
-    it('shows "Something went wrong ..." in case of a network error', () => {
-      cy.intercept(
-        'GET',
-        '**/search**',
-        { forceNetworkError: true }
+  })
 
-      ).as('getNetworkFailure')
-      cy.visit('/')
-      cy.wait('@getNetworkFailure')
+  it('shows "Something went wrong ..." in case of a network error', () => {
+    cy.intercept(
+      'GET',
+      '**/search**',
+      { forceNetworkError: true }
 
-      cy.get('p:contains(Somenthing went wrong ...)')
-        .should('be.visible')
+    ).as('getNetworkFailure')
+    cy.visit('/')
+    cy.wait('@getNetworkFailure')
 
-    })
+    cy.get('p:contains(Something went wrong ...)')
+      .should('be.visible')
+
   })
 })
