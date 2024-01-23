@@ -3,13 +3,13 @@ describe('Hacker Stories', () => {
   const initialTerm = 'React'
   const newTerm = 'Cypress'
 
-  context.only('Hitting the real API', () => {
+  context('Hitting the real API', () => {
     beforeEach(() => {
       cy.intercept({
         method: 'GET',
         pathname: '**/search',
         query: {
-          query: 'initialTerm',
+          query: initialTerm,
           page: '0'
         }
       }).as('getStories')
@@ -23,7 +23,7 @@ describe('Hacker Stories', () => {
         method: 'GET',
         pathname: '**/search',
         query: {
-          query: 'initialTerm',
+          query: initialTerm,
           page: '1'
         }
       }).as('getNextStories')
@@ -44,6 +44,7 @@ describe('Hacker Stories', () => {
         ).as('getNewTermStories')
 
       cy.get('#search')
+        .clear()
         .type(`${newTerm}{enter}`)
 
       cy.wait('@getNewTermStories')
@@ -68,7 +69,7 @@ describe('Hacker Stories', () => {
       method: 'GET',
       pathname: '**/search',
       query: {
-        query: 'initialTerm',
+        query: initialTerm,
         page: '0'
       }
     }).as('getStories')
