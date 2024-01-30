@@ -1,18 +1,20 @@
 describe('Hacker Stories', () => {
-  
+
   const initialTerm = 'React'
   const newTerm = 'Cypress'
 
   context('Hitting the real API', () => {
+  })
+
+  context('Mocking the API', () => {
+
     beforeEach(() => {
-      cy.intercept({
-        method: 'GET',
-        pathname: '**/search',
-        query: {
-          query: initialTerm,
-          page: '0'
-        }
-      }).as('getStories')
+      cy.intercept(
+        'GET',
+        '**/search?query=${initialTerm}&page=0',
+        { fixture:'stories' }
+
+      ).as('getStories')
 
       cy.visit('/')
       cy.wait('@getStories')
@@ -38,10 +40,10 @@ describe('Hacker Stories', () => {
     })
 
     it('searches via the last searched term', () => {
-        cy.intercept(
-          'GET',
-          `**/search?query=${newTerm}&page=0`
-        ).as('getNewTermStories')
+      cy.intercept(
+        'GET',
+        `**/search?query=${newTerm}&page=0`
+      ).as('getNewTermStories')
 
       cy.get('#search')
         .clear()
@@ -87,12 +89,12 @@ describe('Hacker Stories', () => {
   context('List of stories', () => {
     it.skip('shows the right data for all rendered stories', () => { })
 
-    it('shows only nineteen stories after dimissing the first story', () => {
+    it.only('shows one less story after dimissing the first one', () => {
       cy.get('.button-small')
         .first()
         .click()
 
-      cy.get('.item').should('have.length', 19)
+      cy.get('.item').should('have.length', 1)
     })
 
     // Since the API is external,
@@ -163,7 +165,7 @@ describe('Hacker Stories', () => {
       })
 
       context('Last searches', () => {
- 
+
         it('shows a max of 5 buttons for the last searched terms', () => {
           const faker = require('faker')
 
@@ -184,10 +186,13 @@ describe('Hacker Stories', () => {
         })
       })
     })
+
   })
+
+
 })
 
-context.only('Errors', () => {
+context('Errors', () => {
   it('shows "Something went wrong ..." in case of a server error', () => {
     cy.intercept(
       'GET',
